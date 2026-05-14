@@ -4,7 +4,22 @@ import { InvoiceData } from "@/types";
 import { formatCurrency, numberToWords, toArabicNumerals } from "@/lib/utils";
 import { defaultCompanySettings } from "@/types";
 
-function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySettings): string {
+async function loadImageAsBase64(url: string): Promise<string> {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return "";
+  }
+}
+
+function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySettings, headerImage: string): string {
   function boldMarkdown(text: string): string {
     return text.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   }
@@ -32,9 +47,30 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     ? `<div class="section-title">Notes:</div><div class="notes">${data.notes.replace(/\n/g, "<br>")}</div>`
     : "";
 
-  const statusBadgeColor =
-    data.paymentStatus === "paid" ? "#228B22" :
-    data.paymentStatus === "overdue" ? "#C81E1E" : "#C8961E";
+  const headerHtml = headerImage
+    ? `<img class="header-img" src="${headerImage}" alt="Company Header" />`
+    : `<div class="header-fallback">
+        <div class="header-row">
+          <div class="header-left">
+            <p><strong>CR NO:</strong> ${company.crNumber}</p>
+            <p><strong>PO BOX:</strong> ${company.poBox}</p>
+            <p><strong>Postal Code:</strong> ${company.postalCode}</p>
+            <p>${company.country}</p>
+          </div>
+          <div class="header-center">
+            <div class="logo-shape"><span class="logo-text">${company.logoText}</span></div>
+            <div class="company-arabic">${company.arabicName}</div>
+            <div class="company-english">${company.name}</div>
+          </div>
+          <div class="header-right">
+            <p><strong>س.ت.رق:</strong> ${toArabicNumerals(company.crNumber)}</p>
+            <p><strong>ص.ب:</strong> ${toArabicNumerals(company.poBox)}</p>
+            <p><strong>الرمز البريدي:</strong> ${toArabicNumerals(company.postalCode)}</p>
+            <p>سلطنة عمان</p>
+          </div>
+        </div>
+        <div class="red-separator"></div>
+      </div>`;
 
   return `
 <!DOCTYPE html>
@@ -47,35 +83,43 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   body {
     width: 210mm;
     min-height: 297mm;
-    padding: 12mm;
+    padding: 10mm 12mm 12mm 12mm;
     font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
     font-size: 10pt;
     line-height: 1.4;
     color: #1a1a1a;
     background: white;
   }
-  .header-row {
+  .header-img {
+    width: 100%;
+    max-width: 186mm;
+    display: block;
+    margin: 0 auto 4mm auto;
+    object-fit: contain;
+  }
+
+  .header-fallback .header-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 2mm;
   }
-  .header-left {
+  .header-fallback .header-left {
     width: 28%;
     font-size: 9pt;
     line-height: 1.6;
     color: #000;
     padding-top: 2mm;
   }
-  .header-left p { margin: 0; }
-  .header-center {
+  .header-fallback .header-left p { margin: 0; }
+  .header-fallback .header-center {
     width: 44%;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  .logo-shape {
+  .header-fallback .logo-shape {
     width: 18mm;
     height: 18mm;
     background: #C8102E;
@@ -86,13 +130,13 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     margin-bottom: 3mm;
     position: relative;
   }
-  .logo-shape::before {
+  .header-fallback .logo-shape::before {
     content: "";
     position: absolute;
     top: 3mm; left: 3mm; right: 3mm; bottom: 3mm;
     border: 1.5px solid white;
   }
-  .logo-text {
+  .header-fallback .logo-text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -103,21 +147,21 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     letter-spacing: 1px;
     white-space: nowrap;
   }
-  .company-arabic {
+  .header-fallback .company-arabic {
     font-size: 10pt;
     color: #C8102E;
     font-weight: bold;
     margin-bottom: 1mm;
     direction: rtl;
   }
-  .company-english {
+  .header-fallback .company-english {
     font-size: 9pt;
     color: #C8102E;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .header-right {
+  .header-fallback .header-right {
     width: 28%;
     font-size: 9pt;
     line-height: 1.6;
@@ -126,8 +170,8 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     direction: rtl;
     padding-top: 2mm;
   }
-  .header-right p { margin: 0; }
-  .red-separator {
+  .header-fallback .header-right p { margin: 0; }
+  .header-fallback .red-separator {
     border: none;
     border-top: 2.5px solid #C8102E;
     margin: 2mm 0 6mm;
@@ -222,12 +266,15 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   .thank-you { font-size: 10pt; margin-bottom: 2mm; }
   .for-company { font-size: 10pt; margin-bottom: 4mm; }
 
+  .footer {
+    margin-top: auto;
+    padding-top: 4mm;
+  }
   .footer-separator {
     border: none;
     border-top: 1.5px solid #000;
     border-bottom: 3px solid #C8102E;
     height: 5px;
-    margin-top: auto;
     margin-bottom: 2mm;
   }
   .footer-line {
@@ -242,31 +289,12 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     font-size: 8pt;
   }
 
-  .page { display: flex; flex-direction: column; min-height: 273mm; }
+  .page { display: flex; flex-direction: column; min-height: 275mm; }
 </style>
 </head>
 <body>
   <div class="page">
-    <div class="header-row">
-      <div class="header-left">
-        <p><strong>CR NO:</strong> ${company.crNumber}</p>
-        <p><strong>PO BOX:</strong> ${company.poBox}</p>
-        <p><strong>Postal Code:</strong> ${company.postalCode}</p>
-        <p>${company.country}</p>
-      </div>
-      <div class="header-center">
-        <div class="logo-shape"><span class="logo-text">${company.logoText}</span></div>
-        <div class="company-arabic">${company.arabicName}</div>
-        <div class="company-english">${company.name}</div>
-      </div>
-      <div class="header-right">
-        <p><strong>س.ت.رق:</strong> ${toArabicNumerals(company.crNumber)}</p>
-        <p><strong>ص.ب:</strong> ${toArabicNumerals(company.poBox)}</p>
-        <p><strong>الرمز البريدي:</strong> ${toArabicNumerals(company.postalCode)}</p>
-        <p>سلطنة عمان</p>
-      </div>
-    </div>
-    <div class="red-separator"></div>
+    ${headerHtml}
 
     <div class="invoice-meta">
       ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
@@ -322,9 +350,11 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
       <p>&#9742; ${data.contactNumber}</p>
     </div>
 
-    <div class="footer-separator"></div>
-    <div class="footer-line footer-arabic">ست: ${toArabicNumerals(company.crNumber)} ، ص.ب: ${toArabicNumerals(company.poBox)} ، الرمز البريدي: ${toArabicNumerals(company.postalCode)} ، سلطنة عمان، هاتف: ${toArabicNumerals(company.phone.replace(/\D/g,""))}</div>
-    <div class="footer-line">C.R.: ${company.crNumber}, P.O. Box: ${company.poBox}, Postal Code: ${company.postalCode}, Sultanate of Oman, Tel: ${company.phone.replace(/\D/g,"")}</div>
+    <div class="footer">
+      <div class="footer-separator"></div>
+      <div class="footer-line footer-arabic">ست: ${toArabicNumerals(company.crNumber)} ، ص.ب: ${toArabicNumerals(company.poBox)} ، الرمز البريدي: ${toArabicNumerals(company.postalCode)} ، سلطنة عمان، هاتف: ${toArabicNumerals(company.phone.replace(/\D/g,""))}</div>
+      <div class="footer-line">C.R.: ${company.crNumber}, P.O. Box: ${company.poBox}, Postal Code: ${company.postalCode}, Sultanate of Oman, Tel: ${company.phone.replace(/\D/g,"")}</div>
+    </div>
   </div>
 </body>
 </html>
@@ -332,7 +362,8 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
 }
 
 export async function generateInvoicePDF(data: InvoiceData, company = defaultCompanySettings): Promise<jsPDF> {
-  const html = buildInvoiceHTML(data, company);
+  const headerImage = await loadImageAsBase64("/header.png");
+  const html = buildInvoiceHTML(data, company, headerImage);
 
   const container = document.createElement("div");
   container.style.position = "fixed";
@@ -356,7 +387,7 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
   if (!iframeDoc) throw new Error("Failed to load iframe");
 
   await document.fonts.ready;
-  await new Promise((r) => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 800));
 
   const canvas = await html2canvas(iframeDoc.body, {
     scale: 2,
