@@ -16,11 +16,7 @@ export function useCompanySettings(): CompanySettings {
           const parsed = JSON.parse(stored);
           setSettings({
             ...defaultCompanySettings,
-            bankName: parsed.bankName || defaultCompanySettings.bankName,
-            accountNumber: parsed.accountNumber || defaultCompanySettings.accountNumber,
-            accountName: parsed.accountName || defaultCompanySettings.accountName,
-            phone: parsed.phone || defaultCompanySettings.phone,
-            email: parsed.email || defaultCompanySettings.email,
+            ...parsed,
           });
         }
       } catch {

@@ -15,6 +15,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { useCompanySettings } from "@/hooks/use-company-settings";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,13 +28,14 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const company = useCompanySettings();
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 lg:flex">
       <div className="flex h-16 items-center border-b border-gray-200 px-6 dark:border-gray-800">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-700 text-sm font-bold text-white">
-            QB
+            {company.logoText}
           </div>
           <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
             Quotex
