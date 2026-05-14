@@ -13,7 +13,15 @@ export function useCompanySettings(): CompanySettings {
       try {
         const stored = window.localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          setSettings({ ...defaultCompanySettings, ...JSON.parse(stored) });
+          const parsed = JSON.parse(stored);
+          setSettings({
+            ...defaultCompanySettings,
+            bankName: parsed.bankName || defaultCompanySettings.bankName,
+            accountNumber: parsed.accountNumber || defaultCompanySettings.accountNumber,
+            accountName: parsed.accountName || defaultCompanySettings.accountName,
+            phone: parsed.phone || defaultCompanySettings.phone,
+            email: parsed.email || defaultCompanySettings.email,
+          });
         }
       } catch {
         console.warn("Error loading company settings");

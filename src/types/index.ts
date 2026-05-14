@@ -87,17 +87,17 @@ export interface CompanySettings {
 }
 
 export const defaultCompanySettings: CompanySettings = {
-  name: "ABDUL REHMAN DEVELOPMENT BUSINESS LLC",
-  arabicName: "عبد الرحمن للأعمال المتطورة ش ش و",
-  crNumber: "1459267",
-  poBox: "0",
+  name: "ABU MUHAMMAD AZAN BUSINESS SPC",
+  arabicName: "ابو محمد اذان للأعمال ش ش و",
+  crNumber: "1564545",
+  poBox: "1212",
   postalCode: "112",
   country: "Sultanate of Oman",
-  phone: "+968 97461211",
-  email: "abdabdulrehman1211@gmail.com",
-  logoText: "ADB",
-  tagline: "ABDUL REHMAN DEVELOPMENT BUSINESS LLC",
+  phone: "",
+  email: "",
+  logoText: "AMA",
+  tagline: "ABU MUHAMMAD AZAN BUSINESS SPC",
   bankName: "Bank Muscat",
-  accountNumber: "0337064545490013",
-  accountName: "ABDUL REHMAN DEVELOPMENT BUSINESS LLC",
+  accountNumber: "",
+  accountName: "ABU MUHAMMAD AZAN BUSINESS SPC",
 };
