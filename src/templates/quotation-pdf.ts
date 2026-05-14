@@ -181,7 +181,8 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
     margin: 2mm 0 6mm;
   }
 
-  .date { font-size: 10pt; color: #444; text-align: right; margin-bottom: 4mm; }
+  .doc-meta { font-size: 10pt; color: #444; text-align: right; margin-bottom: 4mm; }
+  .doc-meta p { margin: 0; line-height: 1.5; }
   .to-section { font-size: 10pt; margin-bottom: 6mm; }
   .to-section p { line-height: 1.5; margin: 0; }
 
@@ -279,7 +280,10 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
   <div class="page">
     ${headerHtml}
 
-    <div class="date">Date: ${data.date}</div>
+    <div class="doc-meta">
+      <p>${data.quotationNumber}</p>
+      <p>Date: ${data.date}</p>
+    </div>
 
     <div class="to-section">
       <p>To</p>
