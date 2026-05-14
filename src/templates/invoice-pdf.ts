@@ -11,17 +11,23 @@ function isNativePlatform(): boolean {
 }
 
 async function savePdfMobile(doc: jsPDF, filename: string) {
-  const base64 = doc.output("datauristring").split(",")[1];
-  const savedFile = await Filesystem.writeFile({
-    path: filename,
-    data: base64,
-    directory: Directory.Documents,
-  });
-  await Share.share({
-    title: filename,
-    url: savedFile.uri,
-    dialogTitle: "Share PDF",
-  });
+  try {
+    const base64 = doc.output("datauristring").split(",")[1];
+    const savedFile = await Filesystem.writeFile({
+      path: filename,
+      data: base64,
+      directory: Directory.Documents,
+    });
+    await Share.share({
+      title: filename,
+      url: savedFile.uri,
+      dialogTitle: "Share PDF",
+    });
+  } catch (e) {
+    console.error("Native PDF save failed, using fallback:", e);
+    const dataUri = doc.output("datauristring");
+    window.open(dataUri, "_blank");
+  }
 }
 
 async function loadImageAsBase64(url: string): Promise<string> {
