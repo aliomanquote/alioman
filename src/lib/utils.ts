@@ -64,11 +64,16 @@ export function toArabicNumerals(num: string): string {
 
 export function generateDocumentNumber(prefix: string, existingNumbers: string[]): string {
   const maxNum = existingNumbers
-    .map((n) => parseInt(n.split("-")[2] || "0"))
+    .map((n) => {
+      const match = n.match(/#\s*(\d+)/);
+      if (match) return parseInt(match[1]);
+      const parts = n.split("-");
+      return parseInt(parts[parts.length - 1] || "0");
+    })
     .filter((n) => !isNaN(n));
   const nextNum = maxNum.length > 0 ? Math.max(...maxNum) + 1 : 1;
-  const year = new Date().getFullYear();
-  return `${prefix}-${year}-${String(nextNum).padStart(4, "0")}`;
+  const label = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+  return `${label} # ${nextNum}`;
 }
 
 export function generateId(): string {
