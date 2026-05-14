@@ -1,8 +1,28 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import { InvoiceData } from "@/types";
 import { formatCurrency, numberToWords, toArabicNumerals } from "@/lib/utils";
 import { defaultCompanySettings } from "@/types";
+
+function isNativePlatform(): boolean {
+  return typeof (window as any).Capacitor !== "undefined" && (window as any).Capacitor.isNativePlatform?.();
+}
+
+async function savePdfMobile(doc: jsPDF, filename: string) {
+  const base64 = doc.output("datauristring").split(",")[1];
+  const savedFile = await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: Directory.Documents,
+  });
+  await Share.share({
+    title: filename,
+    url: savedFile.uri,
+    dialogTitle: "Share PDF",
+  });
+}
 
 async function loadImageAsBase64(url: string): Promise<string> {
   try {
@@ -422,13 +442,19 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
 
 export async function downloadInvoicePDF(data: InvoiceData, company = defaultCompanySettings) {
   const doc = await generateInvoicePDF(data, company);
-  const pdfBlob = doc.output("blob");
-  const url = URL.createObjectURL(pdfBlob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${data.invoiceNumber}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const filename = `${data.invoiceNumber}.pdf`;
+
+  if (isNativePlatform()) {
+    await savePdfMobile(doc, filename);
+  } else {
+    const pdfBlob = doc.output("blob");
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 }
