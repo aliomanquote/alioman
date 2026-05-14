@@ -92,7 +92,7 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
   body {
     width: 210mm;
     min-height: 297mm;
-    padding: 8mm 12mm 10mm 12mm;
+    padding: 12mm 15mm 12mm 15mm;
     font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
     font-size: 10pt;
     line-height: 1.4;
@@ -186,19 +186,18 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
     margin: 2mm 0 6mm;
   }
 
-  .meta-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2mm; }
-  .date { font-size: 10pt; color: #444; text-align: right; }
-  .to-section { font-size: 10pt; }
-  .to-section p { line-height: 1.4; margin: 0; }
+  .date { font-size: 10pt; color: #444; text-align: right; margin-bottom: 4mm; }
+  .to-section { font-size: 10pt; margin-bottom: 6mm; }
+  .to-section p { line-height: 1.5; margin: 0; }
 
-  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 1mm 0 2mm; text-decoration: underline; text-underline-offset: 3px; }
+  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 4mm 0 5mm; text-decoration: underline; text-underline-offset: 3px; }
 
-  .subject { font-size: 10pt; font-weight: bold; margin-bottom: 2mm; }
+  .subject { font-size: 10pt; font-weight: bold; margin-bottom: 4mm; }
   .subject u { font-weight: bold; text-decoration: underline; text-underline-offset: 2px; }
 
-  .intro { font-size: 10pt; color: #333; margin-bottom: 2mm; line-height: 1.4; }
+  .intro { font-size: 10pt; color: #333; margin-bottom: 4mm; line-height: 1.5; }
 
-  .scope-label { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 2mm; display: inline-block; }
+  .scope-label { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 3mm; display: inline-block; }
 
   table.items-table {
     width: 100%;
@@ -227,20 +226,20 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
     font-size: 10pt;
     border: 0.5px solid #000;
     padding: 2mm 4mm;
-    margin: 2mm auto 3mm;
+    margin: 4mm auto 5mm;
     display: inline-block;
     width: 100%;
   }
 
   .section-title { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; display: inline-block; }
-  .terms-list { list-style: disc; padding-left: 5mm; margin-bottom: 3mm; font-size: 10pt; }
+  .terms-list { list-style: disc; padding-left: 5mm; margin-bottom: 5mm; font-size: 10pt; }
   .terms-list li { margin-bottom: 0.5mm; }
 
-  .bank-details { font-size: 10pt; margin-bottom: 3mm; }
+  .bank-details { font-size: 10pt; margin-bottom: 5mm; }
   .bank-row { display: flex; gap: 6mm; margin-bottom: 0.5mm; }
   .bank-label { font-weight: bold; min-width: 20mm; }
 
-  .signature { font-size: 10pt; margin-bottom: 3mm; }
+  .signature { font-size: 10pt; margin-bottom: 5mm; }
   .signature-name { font-weight: bold; font-size: 11pt; margin-top: 4mm; }
 
   .footer {
@@ -273,14 +272,13 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
   <div class="page">
     ${headerHtml}
 
-    <div class="meta-row">
-      <div class="to-section">
-        <p>To</p>
-        <p>M/s</p>
-        <p>${data.companyName || data.clientName}</p>
-        <p style="font-size:10pt;">${data.address}</p>
-      </div>
-      <div class="date">Date: ${data.date}</div>
+    <div class="date">Date: ${data.date}</div>
+
+    <div class="to-section">
+      <p>To</p>
+      <p>M/s</p>
+      <p>${data.companyName || data.clientName}</p>
+      <p>${data.address}</p>
     </div>
 
     <div class="title">QUOTATION</div>

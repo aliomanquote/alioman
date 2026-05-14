@@ -103,7 +103,7 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   body {
     width: 210mm;
     min-height: 297mm;
-    padding: 8mm 12mm 10mm 12mm;
+    padding: 12mm 15mm 12mm 15mm;
     font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
     font-size: 10pt;
     line-height: 1.4;
@@ -197,9 +197,8 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     margin: 2mm 0 6mm;
   }
 
-  .meta-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2mm; }
-  .invoice-meta { text-align: right; font-size: 10pt; color: #444; }
-  .invoice-meta p { line-height: 1.3; margin: 0; }
+  .invoice-meta { text-align: right; font-size: 10pt; color: #444; margin-bottom: 4mm; }
+  .invoice-meta p { line-height: 1.4; margin: 0; }
   .status-paid {
     display: inline-block;
     padding: 1.5mm 5mm;
@@ -245,13 +244,13 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     border-radius: 1mm;
   }
 
-  .to-section { font-size: 10pt; }
-  .to-section p { line-height: 1.4; margin: 0; }
+  .to-section { font-size: 10pt; margin-bottom: 6mm; }
+  .to-section p { line-height: 1.5; margin: 0; }
 
-  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; }
-  .intro-text { font-size: 10pt; color: #333; margin-bottom: 2mm; line-height: 1.4; }
+  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 4mm; }
+  .intro-text { font-size: 10pt; color: #333; margin-bottom: 4mm; line-height: 1.5; }
 
-  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 1mm 0 2mm; text-decoration: underline; text-underline-offset: 3px; }
+  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 4mm 0 5mm; text-decoration: underline; text-underline-offset: 3px; }
 
   table.items-table {
     width: 100%;
@@ -274,15 +273,15 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   .cell-right { text-align: right; }
   .total-row td { font-weight: bold; }
 
-  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 2mm; }
+  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 5mm; }
 
-  .notes { font-size: 9pt; color: #444; margin-bottom: 2mm; }
+  .notes { font-size: 9pt; color: #444; margin-bottom: 4mm; }
   .section-title { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; display: inline-block; }
 
   .account-label { font-size: 10pt; font-weight: bold; margin-bottom: 0.5mm; }
-  .bank-compact { font-size: 10pt; margin-bottom: 2mm; }
+  .bank-compact { font-size: 10pt; margin-bottom: 4mm; }
 
-  .signature { font-size: 10pt; margin-bottom: 2mm; }
+  .signature { font-size: 10pt; margin-bottom: 5mm; }
   .signature-name { font-weight: bold; font-size: 11pt; margin-top: 2mm; }
   .thank-you { font-size: 10pt; margin-bottom: 1mm; }
   .for-company { font-size: 10pt; margin-bottom: 2mm; }
@@ -317,18 +316,17 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   <div class="page">
     ${headerHtml}
 
-    <div class="meta-row">
-      <div class="to-section">
-        <p style="font-weight:bold;">Bill To:</p>
-        <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
-        <p style="font-size:10pt;">${data.address}</p>
-      </div>
-      <div class="invoice-meta">
-        ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
-        <p>Invoice #: ${data.invoiceNumber}</p>
-        <p>Date: ${data.invoiceDate}</p>
-        <p>Due: ${data.dueDate}</p>
-      </div>
+    <div class="invoice-meta">
+      ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
+      <p>Invoice #: ${data.invoiceNumber}</p>
+      <p>Date: ${data.invoiceDate}</p>
+      <p>Due: ${data.dueDate}</p>
+    </div>
+
+    <div class="to-section">
+      <p style="font-weight:bold;">Bill To:</p>
+      <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
+      <p>${data.address}</p>
     </div>
 
     <div class="subject-line">Sub: ${data.subject}</div>
