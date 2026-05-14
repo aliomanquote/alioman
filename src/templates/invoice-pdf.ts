@@ -371,27 +371,18 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
   container.style.position = "fixed";
   container.style.top = "-9999px";
   container.style.left = "-9999px";
-  container.style.width = "210mm";
+  container.style.width = "794px";
+  container.style.zIndex = "-9999";
   document.body.appendChild(container);
 
-  const iframe = document.createElement("iframe");
-  iframe.style.width = "210mm";
-  iframe.style.height = "297mm";
-  iframe.style.border = "none";
-  container.appendChild(iframe);
-
-  await new Promise<void>((resolve) => {
-    iframe.onload = () => resolve();
-    iframe.srcdoc = html;
-  });
-
-  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-  if (!iframeDoc) throw new Error("Failed to load iframe");
+  container.innerHTML = html;
 
   await document.fonts.ready;
   await new Promise((r) => setTimeout(r, 800));
 
-  const canvas = await html2canvas(iframeDoc.body, {
+  const target = container.querySelector(".page") as HTMLElement || container;
+
+  const canvas = await html2canvas(target, {
     scale: 2,
     useCORS: true,
     allowTaint: true,
@@ -431,5 +422,13 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
 
 export async function downloadInvoicePDF(data: InvoiceData, company = defaultCompanySettings) {
   const doc = await generateInvoicePDF(data, company);
-  doc.save(`${data.invoiceNumber}.pdf`);
+  const pdfBlob = doc.output("blob");
+  const url = URL.createObjectURL(pdfBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${data.invoiceNumber}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

@@ -104,14 +104,22 @@ export default function QuotationPage() {
     setPdfLoading(true);
     try {
       const data = watch();
+      const total = items.reduce((sum, item) => sum + item.amount, 0);
+      const doc = addDocument({
+        ...data,
+        type: "quotation",
+        totalAmount: total,
+      });
       const quotationData = {
         ...data,
         type: "quotation" as const,
-        id: crypto.randomUUID(),
-        totalAmount: items.reduce((sum, item) => sum + item.amount, 0),
-        createdAt: new Date().toISOString(),
+        id: doc.id,
+        totalAmount: total,
+        createdAt: doc.createdAt,
       };
       await downloadQuotationPDF(quotationData, company);
+      setSavedDoc(doc.id);
+      setTimeout(() => setSavedDoc(null), 3000);
     } finally {
       setPdfLoading(false);
     }

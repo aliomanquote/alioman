@@ -115,16 +115,25 @@ export default function InvoicePage() {
     setPdfLoading(true);
     try {
       const data = watch();
-      const invoiceData = {
+      const doc = addDocument({
         ...data,
-        type: "invoice" as const,
-        id: crypto.randomUUID(),
+        type: "invoice",
         subtotal,
         taxAmount,
         totalAmount,
-        createdAt: new Date().toISOString(),
+      } as any);
+      const invoiceData = {
+        ...data,
+        type: "invoice" as const,
+        id: doc.id,
+        subtotal,
+        taxAmount,
+        totalAmount,
+        createdAt: doc.createdAt,
       };
       await downloadInvoicePDF(invoiceData, company);
+      setSavedDoc(doc.id);
+      setTimeout(() => setSavedDoc(null), 3000);
     } finally {
       setPdfLoading(false);
     }
