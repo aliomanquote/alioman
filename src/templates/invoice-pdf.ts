@@ -83,7 +83,7 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   body {
     width: 210mm;
     min-height: 297mm;
-    padding: 10mm 12mm 12mm 12mm;
+    padding: 8mm 12mm 10mm 12mm;
     font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
     font-size: 10pt;
     line-height: 1.4;
@@ -240,7 +240,7 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   }
   table.items-table th, table.items-table td {
     border: 0.5px solid #000;
-    padding: 2.5mm 2mm;
+    padding: 2mm 2mm;
     vertical-align: top;
   }
   table.items-table th {
@@ -395,9 +395,7 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
     allowTaint: true,
     backgroundColor: "#ffffff",
     width: 794,
-    height: 1123,
     windowWidth: 794,
-    windowHeight: 1123,
   });
 
   document.body.removeChild(container);
@@ -411,8 +409,20 @@ export async function generateInvoicePDF(data: InvoiceData, company = defaultCom
   const imgData = canvas.toDataURL("image/png");
   const imgWidth = 210;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const pageHeight = 297;
 
-  doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position -= pageHeight;
+    doc.addPage();
+    doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
 
   return doc;
 }
