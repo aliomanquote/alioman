@@ -9,8 +9,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       attribute="class"
       defaultTheme="light"
       enableSystem={false}
+      forcedTheme={undefined}
       storageKey="quotex-theme"
-      disableTransitionOnChange={false}
+      disableTransitionOnChange
     >
       {children}
     </NextThemesProvider>

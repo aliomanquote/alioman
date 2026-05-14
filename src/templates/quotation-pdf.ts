@@ -13,10 +13,14 @@ function isNativePlatform(): boolean {
 async function savePdfMobile(doc: jsPDF, filename: string) {
   try {
     const base64 = doc.output("datauristring").split(",")[1];
+    try {
+      await Filesystem.requestPermissions();
+    } catch (_) {}
     const savedFile = await Filesystem.writeFile({
       path: filename,
       data: base64,
-      directory: Directory.Documents,
+      directory: Directory.Cache,
+      recursive: true,
     });
     await Share.share({
       title: filename,
@@ -24,9 +28,24 @@ async function savePdfMobile(doc: jsPDF, filename: string) {
       dialogTitle: "Share PDF",
     });
   } catch (e) {
-    console.error("Native PDF save failed, using fallback:", e);
-    const dataUri = doc.output("datauristring");
-    window.open(dataUri, "_blank");
+    console.error("Native PDF save failed:", e);
+    try {
+      const base64 = doc.output("datauristring").split(",")[1];
+      const savedFile = await Filesystem.writeFile({
+        path: filename,
+        data: base64,
+        directory: Directory.Data,
+        recursive: true,
+      });
+      await Share.share({
+        title: filename,
+        url: savedFile.uri,
+        dialogTitle: "Share PDF",
+      });
+    } catch (e2) {
+      console.error("Fallback also failed:", e2);
+      alert("PDF generated but could not save. Please try again.");
+    }
   }
 }
 
@@ -364,20 +383,32 @@ export async function generateQuotationPDF(data: QuotationData, company = defaul
   const headerImage = await loadImageAsBase64("/header.png");
   const html = buildQuotationHTML(data, company, headerImage);
 
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "absolute";
+  wrapper.style.top = "0";
+  wrapper.style.left = "0";
+  wrapper.style.width = "794px";
+  wrapper.style.overflow = "hidden";
+  wrapper.style.height = "0";
+  wrapper.style.opacity = "0";
+  wrapper.style.pointerEvents = "none";
+  wrapper.style.zIndex = "-9999";
+  document.body.appendChild(wrapper);
+
   const container = document.createElement("div");
-  container.style.position = "fixed";
-  container.style.top = "-9999px";
-  container.style.left = "-9999px";
   container.style.width = "794px";
-  container.style.zIndex = "-9999";
-  document.body.appendChild(container);
+  container.style.position = "relative";
+  wrapper.appendChild(container);
 
   container.innerHTML = html;
 
   await document.fonts.ready;
-  await new Promise((r) => setTimeout(r, 800));
+  await new Promise((r) => setTimeout(r, 1000));
 
   const target = container.querySelector(".page") as HTMLElement || container;
+  if (target && target !== container) {
+    target.style.width = "794px";
+  }
 
   const canvas = await html2canvas(target, {
     scale: 2,
@@ -388,7 +419,7 @@ export async function generateQuotationPDF(data: QuotationData, company = defaul
     windowWidth: 794,
   });
 
-  document.body.removeChild(container);
+  document.body.removeChild(wrapper);
 
   const doc = new jsPDF({
     orientation: "portrait",
