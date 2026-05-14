@@ -90,13 +90,8 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 12mm 15mm 12mm 15mm;
-    font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
-    font-size: 10pt;
-    line-height: 1.4;
-    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
     background: white;
   }
   .header-img {
@@ -265,7 +260,19 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
     font-size: 8pt;
   }
 
-  .page { display: flex; flex-direction: column; min-height: 275mm; }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 12mm 15mm 12mm 15mm;
+    font-family: "Segoe UI", Arial, "Noto Sans Arabic", sans-serif;
+    font-size: 10pt;
+    line-height: 1.4;
+    color: #1a1a1a;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
 </style>
 </head>
 <body>
