@@ -177,30 +177,31 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     margin: 2mm 0 6mm;
   }
 
-  .invoice-meta { text-align: right; font-size: 10pt; color: #444; margin-bottom: 6mm; }
-  .invoice-meta p { line-height: 1.4; }
+  .meta-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2mm; }
+  .invoice-meta { text-align: right; font-size: 10pt; color: #444; }
+  .invoice-meta p { line-height: 1.3; margin: 0; }
   .status-paid {
     display: inline-block;
-    padding: 2mm 6mm;
-    border-radius: 3mm;
+    padding: 1.5mm 5mm;
+    border-radius: 2mm;
     background: #228B22;
     color: white;
     font-weight: bold;
     font-size: 9pt;
-    margin-bottom: 2mm;
+    margin-bottom: 1mm;
   }
   .status-pending {
     display: inline-block;
-    width: 28mm;
-    height: 28mm;
+    width: 24mm;
+    height: 24mm;
     border-radius: 50%;
-    border: 2.5px solid #C8102E;
+    border: 2px solid #C8102E;
     color: #C8102E;
     font-weight: bold;
-    font-size: 9pt;
+    font-size: 8pt;
     text-align: center;
-    line-height: 28mm;
-    margin-bottom: 2mm;
+    line-height: 24mm;
+    margin-bottom: 1mm;
     position: relative;
   }
   .status-pending::before {
@@ -212,31 +213,31 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   }
   .status-overdue {
     display: inline-block;
-    padding: 2mm 5mm;
+    padding: 1.5mm 4mm;
     background: #C8102E;
     color: white;
     font-weight: bold;
     font-size: 8pt;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 2mm;
+    margin-bottom: 1mm;
     transform: rotate(-8deg);
     border-radius: 1mm;
   }
 
-  .to-section { font-size: 11pt; margin-bottom: 2mm; }
-  .to-section p { line-height: 1.5; }
+  .to-section { font-size: 10pt; }
+  .to-section p { line-height: 1.4; margin: 0; }
 
-  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 2mm; }
-  .intro-text { font-size: 10pt; color: #333; margin-bottom: 4mm; line-height: 1.5; }
+  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; }
+  .intro-text { font-size: 10pt; color: #333; margin-bottom: 2mm; line-height: 1.4; }
 
-  .title { text-align: center; font-size: 16pt; font-weight: bold; margin: 3mm 0 4mm; text-decoration: underline; text-underline-offset: 3px; }
+  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 1mm 0 2mm; text-decoration: underline; text-underline-offset: 3px; }
 
   table.items-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 9pt;
-    margin-bottom: 4mm;
+    margin-bottom: 2mm;
   }
   table.items-table th, table.items-table td {
     border: 0.5px solid #000;
@@ -253,22 +254,22 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   .cell-right { text-align: right; }
   .total-row td { font-weight: bold; }
 
-  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 4mm; }
+  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 2mm; }
 
-  .notes { font-size: 9pt; color: #444; margin-bottom: 4mm; }
-  .section-title { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 2mm; display: inline-block; }
+  .notes { font-size: 9pt; color: #444; margin-bottom: 2mm; }
+  .section-title { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; display: inline-block; }
 
-  .account-label { font-size: 10pt; font-weight: bold; margin-bottom: 1mm; }
-  .bank-compact { font-size: 10pt; margin-bottom: 4mm; }
+  .account-label { font-size: 10pt; font-weight: bold; margin-bottom: 0.5mm; }
+  .bank-compact { font-size: 10pt; margin-bottom: 2mm; }
 
-  .signature { font-size: 10pt; margin-bottom: 4mm; }
-  .signature-name { font-weight: bold; font-size: 11pt; margin-top: 4mm; }
-  .thank-you { font-size: 10pt; margin-bottom: 2mm; }
-  .for-company { font-size: 10pt; margin-bottom: 4mm; }
+  .signature { font-size: 10pt; margin-bottom: 2mm; }
+  .signature-name { font-weight: bold; font-size: 11pt; margin-top: 2mm; }
+  .thank-you { font-size: 10pt; margin-bottom: 1mm; }
+  .for-company { font-size: 10pt; margin-bottom: 2mm; }
 
   .footer {
     margin-top: auto;
-    padding-top: 4mm;
+    padding-top: 2mm;
   }
   .footer-separator {
     border: none;
@@ -296,17 +297,18 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   <div class="page">
     ${headerHtml}
 
-    <div class="invoice-meta">
-      ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
-      <p>Invoice #: ${data.invoiceNumber}</p>
-      <p>Date: ${data.invoiceDate}</p>
-      <p>Due: ${data.dueDate}</p>
-    </div>
-
-    <div class="to-section">
-      <p style="font-weight:bold;">Bill To:</p>
-      <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
-      <p style="font-size:10pt;">${data.address}</p>
+    <div class="meta-row">
+      <div class="to-section">
+        <p style="font-weight:bold;">Bill To:</p>
+        <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
+        <p style="font-size:10pt;">${data.address}</p>
+      </div>
+      <div class="invoice-meta">
+        ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
+        <p>Invoice #: ${data.invoiceNumber}</p>
+        <p>Date: ${data.invoiceDate}</p>
+        <p>Due: ${data.dueDate}</p>
+      </div>
     </div>
 
     <div class="subject-line">Sub: ${data.subject}</div>
