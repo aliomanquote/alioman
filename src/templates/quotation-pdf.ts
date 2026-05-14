@@ -298,7 +298,7 @@ function buildQuotationHTML(data: QuotationData, company: typeof defaultCompanyS
       <p>${data.address}</p>
     </div>
 
-    <div class="title">QUOTATION</div>
+    <div class="title">${data.quotationNumber.toUpperCase()}</div>
 
     <div class="subject">Sub: <u>${data.subject}</u></div>
 

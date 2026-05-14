@@ -349,7 +349,7 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
       <p>With reference to your enquiry for the above-mentioned works, we are pleased to submit our competitive offer. The full scope of work is detailed below.</p>
     </div>
 
-    <div class="title">INVOICE</div>
+    <div class="title">${data.invoiceNumber.toUpperCase()}</div>
 
     <table class="items-table">
       <thead>
