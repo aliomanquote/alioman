@@ -264,13 +264,27 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     border-radius: 1mm;
   }
 
-  .to-section { font-size: 10pt; margin-bottom: 6mm; }
+  .bill-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 6mm;
+    position: relative;
+  }
+  .to-section { font-size: 10pt; width: 40%; }
   .to-section p { line-height: 1.5; margin: 0; }
+  .bill-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 15pt;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
 
   .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 4mm; }
   .intro-text { font-size: 10pt; color: #333; margin-bottom: 4mm; line-height: 1.5; }
-
-  .title { text-align: center; font-size: 15pt; font-weight: bold; margin: 4mm 0 5mm; text-decoration: underline; text-underline-offset: 3px; }
 
   table.items-table {
     width: 100%;
@@ -350,15 +364,18 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
 
     <div class="invoice-meta">
       ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
-      <p>Invoice #: ${data.invoiceNumber}</p>
+      <p>${data.invoiceNumber}</p>
       <p>Date: ${data.invoiceDate}</p>
       <p>Due: ${data.dueDate}</p>
     </div>
 
-    <div class="to-section">
-      <p style="font-weight:bold;">Bill To:</p>
-      <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
-      <p>${data.address}</p>
+    <div class="bill-row">
+      <div class="to-section">
+        <p style="font-weight:bold;">Bill To:</p>
+        <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
+        <p>${data.address}</p>
+      </div>
+      <div class="bill-title">${data.invoiceNumber.toUpperCase()}</div>
     </div>
 
     <div class="subject-line">Sub: ${data.subject}</div>
@@ -367,8 +384,6 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
       <p>Dear Sir,</p>
       <p>With reference to your enquiry for the above-mentioned works, we are pleased to submit our competitive offer. The full scope of work is detailed below.</p>
     </div>
-
-    <div class="title">${data.invoiceNumber.toUpperCase()}</div>
 
     <table class="items-table">
       <thead>
