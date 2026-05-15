@@ -217,7 +217,7 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     margin: 2mm 0 6mm;
   }
 
-  .invoice-meta { text-align: right; font-size: 10pt; color: #444; margin-bottom: 4mm; }
+  .invoice-meta { text-align: right; font-size: 10pt; color: #444; }
   .invoice-meta p { line-height: 1.4; margin: 0; }
   .status-paid {
     display: inline-block;
@@ -264,18 +264,20 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     border-radius: 1mm;
   }
 
-  .bill-row {
+  .main-row {
     display: flex;
+    justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 6mm;
     position: relative;
   }
-  .to-section { font-size: 10pt; width: 40%; }
+  .to-section { font-size: 10pt; width: 35%; }
   .to-section p { line-height: 1.5; margin: 0; }
-  .bill-title {
+  .main-title {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    top: 0;
     font-size: 15pt;
     font-weight: bold;
     text-decoration: underline;
@@ -362,20 +364,19 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   <div class="page">
     ${headerHtml}
 
-    <div class="invoice-meta">
-      ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
-      <p>${data.invoiceNumber}</p>
-      <p>Date: ${data.invoiceDate}</p>
-      <p>Due: ${data.dueDate}</p>
-    </div>
-
-    <div class="bill-row">
+    <div class="main-row">
       <div class="to-section">
         <p style="font-weight:bold;">Bill To:</p>
         <p style="font-weight:bold;">${data.companyName || data.clientName}</p>
         <p>${data.address}</p>
       </div>
-      <div class="bill-title">${data.invoiceNumber.toUpperCase()}</div>
+      <div class="main-title">${data.invoiceNumber.toUpperCase()}</div>
+      <div class="invoice-meta">
+        ${data.paymentStatus === "paid" ? `<span class="status-paid">PAID</span>` : data.paymentStatus === "pending" ? `<span class="status-pending">PENDING</span>` : `<span class="status-overdue">PAYMENT DUE</span>`}
+        <p>${data.invoiceNumber}</p>
+        <p>Date: ${data.invoiceDate}</p>
+        <p>Due: ${data.dueDate}</p>
+      </div>
     </div>
 
     <div class="subject-line">Sub: ${data.subject}</div>
