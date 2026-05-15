@@ -68,8 +68,8 @@ export default function InvoicePage() {
       bankName: defaultCompanySettings.bankName,
       accountNumber: defaultCompanySettings.accountNumber,
       accountName: defaultCompanySettings.accountName,
-      signatureName: "",
-      contactNumber: "",
+      signatureName: "ALI RAZA",
+      contactNumber: "+968 92903653",
       currency: "OMR",
     },
   });
