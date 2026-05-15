@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,12 +20,24 @@ import { downloadQuotationPDF } from "@/templates/quotation-pdf";
 import { defaultCompanySettings } from "@/types";
 import { useCompanySettings } from "@/hooks/use-company-settings";
 
-export default function QuotationPage() {
-  const { documents, addDocument } = useDocuments();
+export default function QuotationPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <QuotationPage />
+    </Suspense>
+  );
+}
+
+function QuotationPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const editId = searchParams.get("edit");
+  const { documents, addDocument, updateDocument, getDocument } = useDocuments();
   const company = useCompanySettings();
   const [showPreview, setShowPreview] = useState(false);
   const [savedDoc, setSavedDoc] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const existingNumbers = documents
     .filter((d) => d.type === "quotation")
@@ -70,10 +83,37 @@ export default function QuotationPage() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "items",
   });
+
+  useEffect(() => {
+    if (editId && documents.length > 0) {
+      const doc = getDocument(editId);
+      if (doc && doc.type === "quotation") {
+        const q = doc as any;
+        setValue("quotationNumber", q.quotationNumber || "");
+        setValue("date", q.date || "");
+        setValue("clientName", q.clientName || "");
+        setValue("companyName", q.companyName || "");
+        setValue("address", q.address || "");
+        setValue("subject", q.subject || "");
+        setValue("notes", q.notes || "");
+        setValue("paymentTerms", q.paymentTerms || "");
+        setValue("bankName", q.bankName || "");
+        setValue("accountNumber", q.accountNumber || "");
+        setValue("accountName", q.accountName || "");
+        setValue("signatureName", q.signatureName || "");
+        setValue("contactNumber", q.contactNumber || "");
+        setValue("currency", q.currency || "OMR");
+        if (q.items && q.items.length > 0) {
+          replace(q.items);
+        }
+        setIsEditMode(true);
+      }
+    }
+  }, [editId, documents]);
 
   const items = watch("items");
   const totalAmount = items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -91,13 +131,16 @@ export default function QuotationPage() {
   );
 
   const onSubmit = (data: any) => {
-    const doc = addDocument({
-      ...data,
-      type: "quotation",
-      totalAmount: items.reduce((sum, item) => sum + item.amount, 0),
-    });
-    setSavedDoc(doc.id);
-    setTimeout(() => setSavedDoc(null), 3000);
+    const total = items.reduce((sum, item) => sum + item.amount, 0);
+    if (isEditMode && editId) {
+      updateDocument(editId, { ...data, totalAmount: total });
+      setSavedDoc(editId);
+      setTimeout(() => { setSavedDoc(null); router.push("/documents"); }, 1500);
+    } else {
+      const doc = addDocument({ ...data, type: "quotation", totalAmount: total });
+      setSavedDoc(doc.id);
+      setTimeout(() => setSavedDoc(null), 3000);
+    }
   };
 
   const handleDownload = async () => {
@@ -105,20 +148,26 @@ export default function QuotationPage() {
     try {
       const data = watch();
       const total = items.reduce((sum, item) => sum + item.amount, 0);
-      const doc = addDocument({
-        ...data,
-        type: "quotation",
-        totalAmount: total,
-      });
+      let docId: string = editId || "";
+      let createdAt = new Date().toISOString();
+      if (isEditMode && editId) {
+        updateDocument(editId, { ...data, totalAmount: total });
+        const existing = getDocument(editId);
+        if (existing) createdAt = existing.createdAt;
+      } else {
+        const doc = addDocument({ ...data, type: "quotation", totalAmount: total });
+        docId = doc.id;
+        createdAt = doc.createdAt;
+      }
       const quotationData = {
         ...data,
         type: "quotation" as const,
-        id: doc.id,
+        id: docId,
         totalAmount: total,
-        createdAt: doc.createdAt,
+        createdAt,
       };
       await downloadQuotationPDF(quotationData, company);
-      setSavedDoc(doc.id);
+      setSavedDoc(docId);
       setTimeout(() => setSavedDoc(null), 3000);
     } finally {
       setPdfLoading(false);
@@ -135,10 +184,10 @@ export default function QuotationPage() {
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Create Quotation
+              {isEditMode ? "Edit Quotation" : "Create Quotation"}
             </h1>
             <p className="mt-1 text-gray-500 dark:text-gray-400">
-              Generate a professional quotation for your clients
+              {isEditMode ? "Update your existing quotation" : "Generate a professional quotation for your clients"}
             </p>
           </div>
           <div className="flex gap-2">

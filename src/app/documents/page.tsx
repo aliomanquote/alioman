@@ -15,7 +15,9 @@ import {
   Filter,
   X,
   FolderOpen,
+  Pencil,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +31,7 @@ import { DocumentData, QuotationData, InvoiceData } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
 export default function DocumentsPage() {
+  const router = useRouter();
   const { documents, deleteDocument, duplicateDocument } = useDocuments();
   const company = useCompanySettings();
   const [searchQuery, setSearchQuery] = useState("");
@@ -235,6 +238,18 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const route = doc.type === "quotation"
+                            ? `/quotation?edit=${doc.id}`
+                            : `/invoice?edit=${doc.id}`;
+                          router.push(route);
+                        }}
+                        className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30"
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => handleDownload(doc)}
                         disabled={pdfLoadingId === doc.id}

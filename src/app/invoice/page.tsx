@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,12 +20,24 @@ import { downloadInvoicePDF } from "@/templates/invoice-pdf";
 import { defaultCompanySettings } from "@/types";
 import { useCompanySettings } from "@/hooks/use-company-settings";
 
-export default function InvoicePage() {
-  const { documents, addDocument } = useDocuments();
+export default function InvoicePageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <InvoicePage />
+    </Suspense>
+  );
+}
+
+function InvoicePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const editId = searchParams.get("edit");
+  const { documents, addDocument, updateDocument, getDocument } = useDocuments();
   const company = useCompanySettings();
   const [showPreview, setShowPreview] = useState(false);
   const [savedDoc, setSavedDoc] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const existingNumbers = documents
     .filter((d) => d.type === "invoice")
@@ -74,10 +87,40 @@ export default function InvoicePage() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "items",
   });
+
+  useEffect(() => {
+    if (editId && documents.length > 0) {
+      const doc = getDocument(editId);
+      if (doc && doc.type === "invoice") {
+        const inv = doc as any;
+        setValue("invoiceNumber", inv.invoiceNumber || "");
+        setValue("invoiceDate", inv.invoiceDate || "");
+        setValue("dueDate", inv.dueDate || "");
+        setValue("clientName", inv.clientName || "");
+        setValue("companyName", inv.companyName || "");
+        setValue("address", inv.address || "");
+        setValue("subject", inv.subject || "");
+        setValue("notes", inv.notes || "");
+        setValue("taxPercent", inv.taxPercent || 0);
+        setValue("discount", inv.discount || 0);
+        setValue("paymentStatus", inv.paymentStatus || "pending");
+        setValue("bankName", inv.bankName || "");
+        setValue("accountNumber", inv.accountNumber || "");
+        setValue("accountName", inv.accountName || "");
+        setValue("signatureName", inv.signatureName || "");
+        setValue("contactNumber", inv.contactNumber || "");
+        setValue("currency", inv.currency || "OMR");
+        if (inv.items && inv.items.length > 0) {
+          replace(inv.items);
+        }
+        setIsEditMode(true);
+      }
+    }
+  }, [editId, documents]);
 
   const items = watch("items");
   const subtotal = items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -100,39 +143,43 @@ export default function InvoicePage() {
   );
 
   const onSubmit = (data: any) => {
-    const doc = addDocument({
-      ...data,
-      type: "invoice",
-      subtotal,
-      taxAmount,
-      totalAmount,
-    });
-    setSavedDoc(doc.id);
-    setTimeout(() => setSavedDoc(null), 3000);
+    if (isEditMode && editId) {
+      updateDocument(editId, { ...data, subtotal, taxAmount, totalAmount });
+      setSavedDoc(editId);
+      setTimeout(() => { setSavedDoc(null); router.push("/documents"); }, 1500);
+    } else {
+      const doc = addDocument({ ...data, type: "invoice", subtotal, taxAmount, totalAmount });
+      setSavedDoc(doc.id);
+      setTimeout(() => setSavedDoc(null), 3000);
+    }
   };
 
   const handleDownload = async () => {
     setPdfLoading(true);
     try {
       const data = watch();
-      const doc = addDocument({
-        ...data,
-        type: "invoice",
-        subtotal,
-        taxAmount,
-        totalAmount,
-      } as any);
+      let docId: string = editId || "";
+      let createdAt = new Date().toISOString();
+      if (isEditMode && editId) {
+        updateDocument(editId, { ...data, subtotal, taxAmount, totalAmount });
+        const existing = getDocument(editId);
+        if (existing) createdAt = existing.createdAt;
+      } else {
+        const doc = addDocument({ ...data, type: "invoice", subtotal, taxAmount, totalAmount } as any);
+        docId = doc.id;
+        createdAt = doc.createdAt;
+      }
       const invoiceData = {
         ...data,
         type: "invoice" as const,
-        id: doc.id,
+        id: docId,
         subtotal,
         taxAmount,
         totalAmount,
-        createdAt: doc.createdAt,
+        createdAt,
       };
       await downloadInvoicePDF(invoiceData, company);
-      setSavedDoc(doc.id);
+      setSavedDoc(docId);
       setTimeout(() => setSavedDoc(null), 3000);
     } finally {
       setPdfLoading(false);
@@ -149,10 +196,10 @@ export default function InvoicePage() {
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Create Invoice
+              {isEditMode ? "Edit Invoice" : "Create Invoice"}
             </h1>
             <p className="mt-1 text-gray-500 dark:text-gray-400">
-              Generate a professional invoice for your clients
+              {isEditMode ? "Update your existing invoice" : "Generate a professional invoice for your clients"}
             </p>
           </div>
           <div className="flex gap-2">
