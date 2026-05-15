@@ -268,11 +268,11 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 6mm;
+    margin-bottom: 3mm;
     position: relative;
   }
-  .to-section { font-size: 10pt; width: 35%; }
-  .to-section p { line-height: 1.5; margin: 0; }
+  .to-section { font-size: 10pt; width: 30%; }
+  .to-section p { line-height: 1.4; margin: 0; }
   .main-title {
     position: absolute;
     left: 50%;
@@ -285,8 +285,8 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
     white-space: nowrap;
   }
 
-  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 4mm; }
-  .intro-text { font-size: 10pt; color: #333; margin-bottom: 4mm; line-height: 1.5; }
+  .subject-line { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 2mm; }
+  .intro-text { font-size: 10pt; color: #333; margin-bottom: 2mm; line-height: 1.4; }
 
   table.items-table {
     width: 100%;
@@ -309,15 +309,15 @@ function buildInvoiceHTML(data: InvoiceData, company: typeof defaultCompanySetti
   .cell-right { text-align: right; }
   .total-row td { font-weight: bold; }
 
-  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 5mm; }
+  .amount-words { font-size: 10pt; font-weight: bold; margin-bottom: 2mm; }
 
-  .notes { font-size: 9pt; color: #444; margin-bottom: 4mm; }
+  .notes { font-size: 9pt; color: #444; margin-bottom: 2mm; }
   .section-title { font-size: 10pt; font-weight: bold; text-decoration: underline; text-underline-offset: 2px; margin-bottom: 1mm; display: inline-block; }
 
   .account-label { font-size: 10pt; font-weight: bold; margin-bottom: 0.5mm; }
-  .bank-compact { font-size: 10pt; margin-bottom: 4mm; }
+  .bank-compact { font-size: 10pt; margin-bottom: 2mm; }
 
-  .signature { font-size: 10pt; margin-bottom: 5mm; }
+  .signature { font-size: 10pt; margin-bottom: 2mm; }
   .signature-name { font-weight: bold; font-size: 11pt; margin-top: 2mm; }
   .thank-you { font-size: 10pt; margin-bottom: 1mm; }
   .for-company { font-size: 10pt; margin-bottom: 2mm; }
